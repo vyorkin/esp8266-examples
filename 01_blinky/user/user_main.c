@@ -6,7 +6,7 @@
 LOCAL os_timer_t blink_timer;
 LOCAL uint8_t led_state = 0;
 
-LOCAL void ICACHE_FLASH_ATTR blink_cb(void *arg) {
+LOCAL void ICACHE_FLASH_ATTR blink_cb() {
   led_state = !led_state;
   GPIO_OUTPUT_SET(4, led_state);
   if (led_state) {
@@ -18,7 +18,6 @@ LOCAL void ICACHE_FLASH_ATTR blink_cb(void *arg) {
 
 void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
-
   uart_div_modify(0, UART_CLK_FREQ / 115200);
 
   PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4); 

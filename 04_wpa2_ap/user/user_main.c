@@ -8,10 +8,20 @@
 LOCAL uint32_t chip_id;
 
 LOCAL bool connected = false;
-LOCAL uint8_t connected_devices = 0;
 LOCAL uint8_t led_state = 0;
 
-LOCAL os_timer_t loop_timer;
+LOCAL os_timer_t list_timer;
+
+void ICACHE_FLASH_ATTR list() {
+  struct station_info *si = wifi_softap_get_station_info();
+  if (si != NULL) {
+    while (si != NULL) {
+      os_printf("%d.%d.%d.%d\n", IP2STR(&(si->ip)));
+      si = STAILQ_NEXT(si, next);
+    }
+    wifi_softap_free_station_info();
+  }
+}
 
 void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
   os_printf("[INFO] ");
@@ -57,20 +67,24 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
       );
       break;
     case EVENT_SOFTAPMODE_STACONNECTED:
-      connected_devices++;
       os_printf(
         "station: " MACSTR " join, AID = %d\n",
         MAC2STR(e->event_info.sta_connected.mac),
         e->event_info.sta_connected.aid
       );
+      os_timer_disarm(&list_timer);
+      os_timer_setfn(&list_timer, (os_timer_func_t *)list, NULL);
+      os_timer_arm(&list_timer, 5000, 1);
       break;
     case EVENT_SOFTAPMODE_STADISCONNECTED:
-      connected_devices--;
       os_printf(
         "station: " MACSTR " leave, AID = %d\n",
         MAC2STR(e->event_info.sta_disconnected.mac),
         e->event_info.sta_disconnected.aid
       );
+      if (wifi_softap_get_station_num() <= 0) {
+        os_timer_disarm(&list_timer);
+      }
       break;
     case EVENT_SOFTAPMODE_PROBEREQRECVED:
       os_printf(
@@ -116,22 +130,9 @@ static void ICACHE_FLASH_ATTR setup() {
     os_printf("[ERR] wifi_softap_set_config_current: fail\n");
   }
 }
-
-void ICACHE_FLASH_ATTR loop() {
-  led_state = !led_state;
-  GPIO_OUTPUT_SET(4, led_state);
-}
-
 void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
-  system_set_os_print(0);
   uart_div_modify(0, UART_CLK_FREQ / 115200);
-
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4); 
-
-  os_timer_disarm(&loop_timer);
-  os_timer_setfn(&loop_timer, (os_timer_func_t *)loop, NULL);
-  os_timer_arm(&loop_timer, 200, 1);
 
   system_init_done_cb(setup);
 }

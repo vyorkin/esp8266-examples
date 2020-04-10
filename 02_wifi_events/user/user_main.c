@@ -52,6 +52,7 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
         MAC2STR(e->event_info.sta_connected.mac),
         e->event_info.sta_connected.aid
       );
+      os_printf("active connections: %d", wifi_softap_get_station_num());
       break;
     case EVENT_SOFTAPMODE_STADISCONNECTED:
       os_printf(
@@ -59,6 +60,7 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
         MAC2STR(e->event_info.sta_disconnected.mac),
         e->event_info.sta_disconnected.aid
       );
+      os_printf("active connections: %d", wifi_softap_get_station_num());
       break;
     case EVENT_SOFTAPMODE_PROBEREQRECVED:
       os_printf(
