@@ -19,22 +19,22 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
   switch (e->event) {
     case EVENT_STAMODE_CONNECTED:
       os_printf(
-        "connected to %s channel %d\n", 
-        e->event_info.connected.ssid, 
+        "connected to %s channel %d\n",
+        e->event_info.connected.ssid,
         e->event_info.connected.channel
       );
       break;
     case EVENT_STAMODE_DISCONNECTED:
       os_printf(
-        "disconnected from %s, due to code:%d\n", 
-        e->event_info.disconnected.ssid, 
+        "disconnected from %s, due to code :%d\n",
+        e->event_info.disconnected.ssid,
         e->event_info.disconnected.reason
       );
       break;
     case EVENT_STAMODE_AUTHMODE_CHANGE:
       os_printf(
-        "auth mode updated from %d to %d\n", 
-        e->event_info.auth_change.old_mode, 
+        "auth mode updated from %d to %d\n",
+        e->event_info.auth_change.old_mode,
         e->event_info.auth_change.new_mode
       );
       break;
@@ -42,7 +42,7 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
       connected = true;
       ip_addr_t my_ip = e->event_info.got_ip.ip;
       os_printf(
-        "ip:" IPSTR ",mask:" IPSTR ",gw:" IPSTR, 
+        "ip:" IPSTR ",mask:" IPSTR ",gw:" IPSTR,
         IP2STR(&my_ip),
         IP2STR(&e->event_info.got_ip.mask),
         IP2STR(&e->event_info.got_ip.gw)
@@ -86,10 +86,10 @@ void ICACHE_FLASH_ATTR wifi_handle_event(System_Event_t *e) {
 }
 
 static void ICACHE_FLASH_ATTR setup() {
-  os_printf("[INFO] SDK version: %s\n", system_get_sdk_version());
+  os_printf("[INFO] sdk version: %s\n", system_get_sdk_version());
   chip_id = system_get_chip_id();
-  os_printf("[INFO] Chip ID: 0x%x\n", chip_id);
-  os_printf("[INFO] System started\n");
+  os_printf("[INFO] chip ID: 0x%x\n", chip_id);
+  os_printf("[INFO] system started\n");
 
   if (!wifi_station_set_auto_connect(false)) {
     os_printf("[ERR] wifi_station_set_auto_connect: fail\n");
@@ -104,11 +104,13 @@ static void ICACHE_FLASH_ATTR setup() {
   os_memset(&cfg, 0, sizeof(cfg)); 
 
   os_strcpy(cfg.ssid, SSID);
-
+  os_strcpy(cfg.password, SSID_PASS);
   cfg.ssid_len = os_strlen(SSID);
-  cfg.authmode = AUTH_OPEN;
+
+  cfg.authmode = AUTH_WPA2_PSK;
   cfg.ssid_hidden = 0;
   cfg.max_connection = 4;
+  cfg.channel = 1;
 
   if (!wifi_softap_set_config_current(&cfg)) {
     os_printf("[ERR] wifi_softap_set_config_current: fail\n");
@@ -122,6 +124,7 @@ void ICACHE_FLASH_ATTR loop() {
 
 void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
+  system_set_os_print(0);
   uart_div_modify(0, UART_CLK_FREQ / 115200);
 
   PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4); 

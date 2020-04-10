@@ -101,7 +101,6 @@ static void ICACHE_FLASH_ATTR setup() {
 
 void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
-  /* system_set_os_print(0); */
   uart_div_modify(0, UART_CLK_FREQ / 115200);
   system_init_done_cb(setup);
 }

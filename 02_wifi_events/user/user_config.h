@@ -1,2 +1,2 @@
-#define SSID "your_ssid"
-#define SSID_PASS "your_pass"
+#define SSID "meow"
+#define SSID_PASS "whatever"
