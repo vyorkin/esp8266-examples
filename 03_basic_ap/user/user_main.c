@@ -122,7 +122,6 @@ void ICACHE_FLASH_ATTR loop() {
 
 void ICACHE_FLASH_ATTR user_init() {
   gpio_init();
-  system_set_os_print(0);
   uart_div_modify(0, UART_CLK_FREQ / 115200);
 
   PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U, FUNC_GPIO4); 
