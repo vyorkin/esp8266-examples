@@ -1,0 +1,2 @@
+#define SSID "MGTS_GPON_763C"
+#define SSID_PASSWORD "mmPURMWg"
